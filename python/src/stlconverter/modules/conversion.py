@@ -90,7 +90,7 @@ class ByteConversion:
         return int.from_bytes(byte_data, "little")
 
 
-class STLTriangle:
+class BinarySTLTriangle:
     """STL Triangle representation class.
 
     This class represents a single triangle in an STL file. It contains the
@@ -115,7 +115,7 @@ class STLTriangle:
     }
 
     def __init__(self, byte_data: bytes) -> None:
-        """Initialize a STLTriangle instance.
+        """Initialize a BinarySTLTriangle instance.
 
         Args:
             byte_data (bytes): Byte data of the triangle.
@@ -188,7 +188,7 @@ class BinarySTL:
     Properties:
         header (str): Header of the STL file.
         ntriangles (int): Number of triangles in the STL file.
-        triangles (Tuple[STLTriangle, ...]): Triangles in the STL file.
+        triangles (Tuple[BinarySTLTriangle, ...]): Triangles in the STL file.
     """
 
     _STOPS = {
@@ -227,14 +227,14 @@ class BinarySTL:
         )
 
     @property
-    def triangles(self) -> Tuple[STLTriangle, ...]:
+    def triangles(self) -> Tuple[BinarySTLTriangle, ...]:
         """Get the triangles in the STL file.
 
         Returns:
-            Tuple[STLTriangle, ...]: Triangles in the STL file.
+            Tuple[BinarySTLTriangle, ...]: Triangles in the STL file.
         """
         return tuple(
-            STLTriangle(self.byte_data[i:i + 50])
+            BinarySTLTriangle(self.byte_data[i:i + 50])
             for i in range(self._STOPS["ntriangles"], len(self.byte_data), 50)
         )
 

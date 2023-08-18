@@ -12,6 +12,7 @@ import sys
 from time import perf_counter as pc
 
 from colorama import Fore, Style, init
+
 from .modules.conversion import STL
 from .modules.input_handling import InputHandler
 
@@ -34,7 +35,6 @@ def same_format_warn(input_handler: InputHandler, stl: STL) -> None:
         print(
             Style.BRIGHT + Fore.YELLOW
             + "Warning: detected same input and output format (ASCII)."
-            " File contents will remain unchanged after conversion"
             + Style.RESET_ALL
         )
 
@@ -48,6 +48,16 @@ out_name = (
 
 try:
     stl = STL(handler.input_path)
+    in_mode = "binary" if stl._is_input_binary else "ASCII"
+    out_mode = "binary" if handler.is_binary else "ASCII"
+
+    print(
+        Style.BRIGHT + Fore.GREEN
+        + f"Converting \"{handler.input_path}\" ({in_mode}) to "
+        + f"\"{out_name}\" ({out_mode})..."
+        + Style.RESET_ALL
+    )
+
     if handler.is_binary:
         same_format_warn(handler, stl)
         stl.save_stlb(out_name)
@@ -60,8 +70,7 @@ except Exception:  # Uncaught exceptions.
         + f"Unknown error: {Style.RESET_ALL}{str(sys.exc_info()[1])}"
     )
 else:  # Successful conversion.
-    mode = "binary" if handler.is_binary else "ASCII"
     print(
         Style.BRIGHT + Fore.GREEN
-        + f"File successfully converted to {mode} format"
+        + f"File successfully converted to {in_mode} format"
     )

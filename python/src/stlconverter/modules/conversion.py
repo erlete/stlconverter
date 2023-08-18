@@ -40,7 +40,6 @@ Author:
 
 
 import struct
-from time import time
 from typing import Tuple
 
 
@@ -93,38 +92,46 @@ class ByteConversion:
 
 class STLTriangle:
 
-    def __init__(self, data):
-        self.data = data
+    _STOPS = {
+        "normal": 12,
+        "vertex1": 24,
+        "vertex2": 36,
+        "vertex3": 48,
+        "attribute": 50
+    }
+
+    def __init__(self, byte_data):
+        self.byte_data = byte_data
 
     @property
     def normal(self):
-        return ByteConversion.byte_coord_to_real32(self.data[:12])
+        return ByteConversion.byte_coord_to_real32(
+            self.byte_data[:self._STOPS["normal"]]
+        )
 
     @property
-    def vertex1(self):
-        return ByteConversion.byte_coord_to_real32(self.data[12:24])
-
-    @property
-    def vertex2(self):
-        return ByteConversion.byte_coord_to_real32(self.data[24:36])
-
-    @property
-    def vertex3(self):
-        return ByteConversion.byte_coord_to_real32(self.data[36:48])
+    def vertices(self):
+        step = self._STOPS["vertex2"] - self._STOPS["vertex1"]
+        return tuple(
+            ByteConversion.byte_coord_to_real32(self.byte_data[i:i + step])
+            for i in range(self._STOPS["normal"], self._STOPS["vertex3"], step)
+        )
 
     @property
     def attribute_byte_count(self):
-        return ByteConversion.bytes_to_uint(self.data[48:50])
+        return ByteConversion.bytes_to_uint(self.byte_data[48:50])
 
     def __repr__(self):
         return "<STL Triangle>"
 
     def __str__(self):
-        return f"""STL:
+        vertices = "\n    ".join(
+            f"Vertex {i + 1}:  {vertex}"
+            for i, vertex in enumerate(self.vertices)
+        )
+        return f"""STL Triangle:
     Normal:    {self.normal}
-    Vertex 1:  {self.vertex1}
-    Vertex 2:  {self.vertex2}
-    Vertex 3:  {self.vertex3}
+    {vertices}
     Attribute: {self.attribute_byte_count}"""
 
 class STL:

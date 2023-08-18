@@ -1,0 +1,25 @@
+{
+  "name": "stlconverter",
+  "productName": "STL Converter",
+  "version": "0.0.0",
+  "description": "STL/STLA file conversion utility.",
+  "main": "js/src/index.js",
+  "files": [
+    "js/src/**/*"
+  ],
+  "keywords": [
+    "stl",
+    "stla",
+    "3d",
+    "conversion"
+  ],
+  "author": {
+    "name": "Paulo Sanchez",
+    "email": "dev.szblzpaulo@gmail.com"
+  },
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "tailwindcss": "^3.3.3"
+  }
+}

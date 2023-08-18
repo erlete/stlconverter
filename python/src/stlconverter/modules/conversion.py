@@ -218,7 +218,39 @@ class STL:
         return f"{self._INDENTATION_SPACES * level * ' '}{data}"
 
     def to_stlb(self) -> bytes:
-        pass
+        header = self.data["header"].encode("ASCII")
+        output = header + b"\x00" * (80 - len(header))
+        output += struct.pack("<I", self.data["n_triangles"])
+        for triangle in self.data["triangles"]:
+            output += struct.pack("<fff", *triangle["normal"])
+            for vertex in triangle["vertices"]:
+                output += struct.pack("<fff", *vertex)
+            output += struct.pack("<H", triangle["attribute"])
+
+        return output
 
     def to_stla(self) -> str:
-        pass
+        output = f"solid {self.header}\n"
+        for triangle in self.triangles:
+            normal = " ".join(str(val) for val in triangle['normal']).strip()
+            output += self._indent(f"facet normal {normal}\n", 1)
+            output += self._indent("outer loop\n", 2)
+            output += "\n".join(
+                self._indent(
+                    f"vertex {' '.join(str(val) for val in vertex).strip()}",
+                    3
+                ) for vertex in triangle["vertices"]
+            ) + "\n"
+            output += self._indent("endloop\n", 2)
+            output += self._indent("endfacet\n", 1)
+
+        output += f"endsolid {self.header}"
+        return output
+
+    def save_stla(self, path: str) -> None:
+        with open(path, mode="w", encoding="utf-8") as fp:
+            fp.write(self.to_stla())
+
+    def save_stlb(self, path: str) -> None:
+        with open(path, mode="wb") as fp:
+            fp.write(self.to_stlb())

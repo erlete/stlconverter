@@ -1,5 +1,7 @@
 [build-system]
-requires = []
+requires = [
+    "colorama>=0.4.6"
+]
 build-backend = "setuptools.build_meta"
 
 [project]

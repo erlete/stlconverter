@@ -142,8 +142,32 @@ class TriangleReader(Reader):
         }
 
 
-            )
 
+class FileReader(Reader):
+
+    @classmethod
+    def _read_stlb(cls, data: bytes) -> Dict[str, Any]:
+        return {
+            "header": data[:80].strip(b"\x00").decode("ASCII"),
+            "n_triangles": ByteConversion.bytes_to_uint(data[80:84]),
+            "triangles": tuple(
+                TriangleReader.read(data[i:i + 50])
+                for i in range(84, len(data), 50)
+            )
+        }
+
+    @classmethod
+    def _read_stla(cls, data: str) -> Dict[str, Any]:
+        lines = [line.strip() for line in data.strip().split("\n")]
+        return {
+            "header": lines[0].strip("solid").strip(),
+            "n_triangles": (len(lines) - 1) // 7,
+            "triangles": tuple([
+                TriangleReader.read("\n".join(lines[i:i + 5]))  # Skip 2 lines
+                for i, line in enumerate(lines)
+                if line.strip().startswith("facet normal")
+            ])
+        }
 
 
 

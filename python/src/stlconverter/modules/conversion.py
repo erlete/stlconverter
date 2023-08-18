@@ -41,6 +41,7 @@ Author:
 
 import struct
 from typing import Tuple
+from typing import Any, Dict, Tuple, Union
 
 
 class ByteConversion:
@@ -170,6 +171,13 @@ class FileReader(Reader):
         }
 
 
+class STL:
 
+    def __init__(self, data: Union[bytes, str]) -> None:
+        self.data = FileReader.read(data)
 
+    def to_stlb(self) -> bytes:
+        pass
 
+    def to_stla(self) -> str:
+        pass

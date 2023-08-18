@@ -100,8 +100,8 @@ class STLTriangle:
         byte_data (bytes): Byte data of the triangle.
 
     Properties:
-        normal (Tuple[float, float, float]): Normal vector of the triangle.
-        vertices (Tuple[Tuple[float, float, float], ...]): Vertices of the
+        normal (Tuple[float, ...]): Normal vector of the triangle.
+        vertices (Tuple[Tuple[float, ...], ...]): Vertices of the
             triangle.
         attribute_byte_count (int): Attribute byte count of the triangle.
     """
@@ -123,22 +123,22 @@ class STLTriangle:
         self.byte_data = byte_data
 
     @property
-    def normal(self) -> Tuple[float, float, float]:
+    def normal(self) -> Tuple[float, ...]:
         """Get the normal vector of the triangle.
 
         Returns:
-            Tuple[float, float, float]: Normal vector of the triangle.
+            Tuple[float, ...]: Normal vector of the triangle.
         """
         return ByteConversion.byte_coord_to_real32(
             self.byte_data[:self._STOPS["normal"]]
         )
 
     @property
-    def vertices(self) -> Tuple[Tuple[float, float, float], ...]:
+    def vertices(self) -> Tuple[Tuple[float, ...], ...]:
         """Get the vertices of the triangle.
 
         Returns:
-            Tuple[Tuple[float, float, float], ...]: Vertices of the triangle.
+            Tuple[Tuple[float, ...], ...]: Vertices of the triangle.
         """
         step = self._STOPS["vertex2"] - self._STOPS["vertex1"]
         return tuple(
@@ -179,8 +179,8 @@ class STLTriangle:
     Attribute: {self.attribute_byte_count}"""
 
 
-class STL:
-    """STL file representation class.
+class BinarySTL:
+    """Binary STL file representation class.
 
     Attributes:
         byte_data (bytes): Byte data of the STL file.
@@ -211,7 +211,9 @@ class STL:
         Returns:
             str: Header of the STL file.
         """
-        return self.byte_data[:self._STOPS["header"]].strip(b"\x00").decode("ASCII")
+        return self.byte_data[:self._STOPS["header"]].strip(b"\x00").decode(
+            "ASCII"
+        )
 
     @property
     def ntriangles(self) -> int:

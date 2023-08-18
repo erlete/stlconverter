@@ -255,3 +255,149 @@ class BinarySTL:
         return f"""STL:
     Header:    {self.header}
     Triangles: {self.ntriangles}"""
+
+
+class ASCIISTLTriangle:
+    """STL Triangle representation class.
+
+    This class represents a single triangle in an STL file. It contains the
+    triangle's normal vector, its three vertices and the attribute byte count.
+
+    Attributes:
+        lines (Tuple[str, ...]): Lines of the triangle.
+
+    Properties:
+        normal (Tuple[float, ...]): Normal vector of the triangle.
+        vertices (Tuple[Tuple[float, ...], ...]): Vertices of the
+            triangle.
+    """
+
+    def __init__(self, lines: Tuple[str, ...]) -> None:
+        """Initialize an ASCIISTLTriangle instance.
+
+        Args:
+            lines (Tuple[str, ...]): Lines of the triangle.
+        """
+        self.lines = lines
+
+    @property
+    def normal(self) -> Tuple[float, ...]:
+        """Get the normal vector of the triangle.
+
+        Returns:
+            Tuple[float, ...]: Normal vector of the triangle.
+        """
+        return tuple(
+            float(val)
+            for val in self.lines[1].strip("facet normal").strip().split()
+        )
+
+    @property
+    def vertices(self) -> Tuple[Tuple[float, ...], ...]:
+        """Get the vertices of the triangle.
+
+        Returns:
+            Tuple[Tuple[float, ...], ...]: Vertices of the triangle.
+        """
+        return tuple(
+            tuple(
+                float(val)
+                for val in line.strip("vertex").strip().split()
+            )
+            for line in self.lines[2:5]
+        )
+
+    def __repr__(self) -> str:
+        """Get the raw representation of the triangle.
+
+        Returns:
+            str: Raw representation of the triangle.
+        """
+        return "<STL Triangle>"
+
+    def __str__(self) -> str:
+        """Get the extended representation of the triangle.
+
+        Returns:
+            str: Extended representation of the triangle.
+        """
+        vertices = "\n    ".join(
+            f"Vertex {i + 1}:  {vertex}"
+            for i, vertex in enumerate(self.vertices)
+        )
+        return f"""STL Triangle:
+    Normal:    {self.normal}
+    {vertices}"""
+
+
+class ASCIISTL:
+    """ASCII STL file representation class.
+
+    Attributes:
+        ascii_data (str): ASCII data of the STL file.
+
+    Properties:
+        header (str): Header of the STL file.
+        ntriangles (int): Number of triangles in the STL file.
+        triangles (Tuple[BinarySTLTriangle, ...]): Triangles in the STL file.
+    """
+
+    def __init__(self, ascii_data: str) -> None:
+        """Initialize a STL instance.
+
+        Args:
+            ascii_data (str): ASCII data of the STL file.
+        """
+        self.ascii_data = ascii_data
+        self.lines = ascii_data.split("\n")
+
+    @property
+    def header(self) -> str:
+        """Get the header of the STL file.
+
+        Returns:
+            str: Header of the STL file.
+        """
+        return self.lines[0].strip("solid").strip()
+
+    @property
+    def ntriangles(self) -> int:
+        """Get the number of triangles in the STL file.
+
+        Returns:
+            int: Number of triangles in the STL file.
+        """
+        return len(self.triangles)
+
+    @property
+    def triangles(self) -> Tuple[ASCIISTLTriangle, ...]:
+        """Get the triangles in the STL file.
+
+        Returns:
+            Tuple[ASCIISTLTriangle, ...]: Triangles in the STL file.
+        """
+        triangles = []
+        for i, line in enumerate(self.lines):
+            if line.strip().startswith("facet normal"):
+                triangles.append(
+                    ASCIISTLTriangle(tuple(self.lines[i:i + 5]))
+                )
+        return tuple(triangles)
+
+    def __repr__(self) -> str:
+        """Get the raw representation of the STL file.
+
+        Returns:
+            str: Raw representation of the STL file.
+        """
+        return f"<STL with {self.ntriangles} triangles>"
+
+    def __str__(self) -> str:
+        """Get the extended representation of the STL file.
+
+        Returns:
+            str: Extended representation of the STL file.
+        """
+        return f"""STL:
+    Header:    {self.header}
+    Triangles: {self.ntriangles}"""

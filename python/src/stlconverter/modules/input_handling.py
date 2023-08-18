@@ -92,7 +92,7 @@ Usage:
         Returns:
             bool: True if output mode is binary, False otherwise.
         """
-        return self.arguments[1] == "STLB"
+        return self.arguments[1].upper() == "STLB"
 
     @property
     def is_ascii(self) -> bool:
@@ -101,4 +101,4 @@ Usage:
         Returns:
             bool: True if output mode is ASCII, False otherwise.
         """
-        return self.arguments[1] == "STLA"
+        return self.arguments[1].upper() == "STLA"

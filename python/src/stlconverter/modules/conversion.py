@@ -1,25 +1,51 @@
+"""Conversion module.
+
+This module contains all required classes and methods to convert STL files
+between ASCII and binary formats (and vice versa).
+
+Notes:
+    STL binary uses little-endian byte order and IEEE-754 floating-point
+    standard. Below are two examples of STL files, one in binary and the other
+    in ASCII format (from Wikipedia):
+
+    STL (binary) file structure:
+
+        UINT8[80]        - Header               - 80 bytes
+        UINT32           - Number of triangles  -  4 bytes
+        foreach triangle - (50 bytes)
+            REAL32[3]    - Normal vector        - 12 bytes
+            REAL32[3]    - Vertex 1             - 12 bytes
+            REAL32[3]    - Vertex 2             - 12 bytes
+            REAL32[3]    - Vertex 3             - 12 bytes
+            UINT16       - Attribute byte count -  2 bytes
+        end              - N/A
+        ...
+
+    STLA (ASCII) file structure:
+
+        solid <name>
+            facet normal <ni> <nj> <nk>
+                outer loop
+                    vertex <v1x> <v1y> <v1z>
+                    vertex <v2x> <v2y> <v2z>
+                    vertex <v3x> <v3y> <v3z>
+                endloop
+            endfacet
+            ...
+        endsolid <name>
+
+Author:
+    Paulo Sanchez (@erlete)
+"""
+
+
 import struct
 from pprint import pprint
 from time import time
 
-"""BINARY STL
 
-Because ASCII STL files can be very large, a binary version of STL exists. A binary STL file has an 80-character header which is generally ignored, but should never begin with the ASCII representation of the string solid, as that may lead some software to confuse it with an ASCII STL file. Following the header is a 4-byte little-endian unsigned integer indicating the number of triangular facets in the file. Following that is data describing each triangle in turn. The file simply ends after the last triangle.
 
-Each triangle is described by twelve 32-bit floating-point numbers: three for the normal and then three for the X/Y/Z coordinate of each vertex – just as with the ASCII version of STL. After these follows a 2-byte ("short") unsigned integer that is the "attribute byte count" – in the standard format, this should be zero because most software does not understand anything else.[9]
 
-Floating-point numbers are represented as IEEE floating-point numbers and are assumed to be little-endian, although this is not stated in documentation.
-
-UINT8[80]    – Header                 -     80 bytes
-UINT32       – Number of triangles    -      4 bytes
-foreach triangle                      - 50 bytes:
-    REAL32[3] – Normal vector             - 12 bytes
-    REAL32[3] – Vertex 1                  - 12 bytes
-    REAL32[3] – Vertex 2                  - 12 bytes
-    REAL32[3] – Vertex 3                  - 12 bytes
-    UINT16    – Attribute byte count      -  2 bytes
-end
-"""
 
 def c4bytetoIEEE_754_real32(data, step):
     return tuple(

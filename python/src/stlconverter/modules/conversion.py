@@ -44,19 +44,22 @@ from pprint import pprint
 from time import time
 
 
+class ByteConversion:
 
+    @staticmethod
+    def bytes_to_real32(data):
+        return struct.unpack("<f", data)[0]
 
+    @staticmethod
+    def byte_coord_to_real32(data):
+        return tuple(
+            ByteConversion.bytes_to_real32(data[i:i + 4])
+            for i in range(0, len(data), 4)
+        )
 
-def c4bytetoIEEE_754_real32(data, step):
-    return tuple(
-        struct.unpack("<f", data[i:i + 4])[0]
-        for i in range(0, len(data), step)
-    ) if len(data) != step else (
-        struct.unpack("<f", data)[0]
-    )
-
-def bytes_to_uint(data):
-    return int.from_bytes(data, "little")
+    @staticmethod
+    def bytes_to_uint(data):
+        return int.from_bytes(data, "little")
 
 
 class STLTriangle:
@@ -66,23 +69,23 @@ class STLTriangle:
 
     @property
     def normal(self):
-        return c4bytetoIEEE_754_real32(self.data[:12], 4)
+        return ByteConversion.byte_coord_to_real32(self.data[:12])
 
     @property
     def vertex1(self):
-        return c4bytetoIEEE_754_real32(self.data[12:24], 4)
+        return ByteConversion.byte_coord_to_real32(self.data[12:24])
 
     @property
     def vertex2(self):
-        return c4bytetoIEEE_754_real32(self.data[24:36], 4)
+        return ByteConversion.byte_coord_to_real32(self.data[24:36])
 
     @property
     def vertex3(self):
-        return c4bytetoIEEE_754_real32(self.data[36:48], 4)
+        return ByteConversion.byte_coord_to_real32(self.data[36:48])
 
     @property
     def attribute_byte_count(self):
-        return bytes_to_uint(self.data[48:50])
+        return ByteConversion.bytes_to_uint(self.data[48:50])
 
     def __repr__(self):
         return "<STL Triangle>"
@@ -110,7 +113,7 @@ class STL:
 
     @property
     def ntriangles(self):
-        return bytes_to_uint(
+        return ByteConversion.bytes_to_uint(
             self.data[self._STOPS["header"]:self._STOPS["ntriangles"]]
         )
 
@@ -121,6 +124,7 @@ class STL:
         return f"""STL:
     Header:    {self.header}
     Triangles: {self.ntriangles}"""
+
 
 with open("stl.stl", mode="rb") as fp:
     data = fp.read()

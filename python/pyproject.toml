@@ -1,0 +1,27 @@
+[build-system]
+requires = []
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stlconverter"
+version = "0.0.0"
+description = "STL/STLA file conversion utility."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.7.13"
+authors = [
+    {name = "Paulo Sanchez", email = "dev.szblzpaulo@gmail.com"}
+]
+maintainers = [
+    {name = "Paulo Sanchez", email = "dev.szblzpaulo@gmail.com"}
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/erlete/stl-converter"
+"Bug Tracker" = "https://github.com/erlete/stl-converter/issues"

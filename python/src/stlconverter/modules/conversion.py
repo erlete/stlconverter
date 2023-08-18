@@ -255,34 +255,3 @@ class BinarySTL:
         return f"""STL:
     Header:    {self.header}
     Triangles: {self.ntriangles}"""
-
-
-with open("stl.stl", mode="rb") as fp:
-    data = fp.read()
-
-stl = STL(data)
-print(stl)
-print([stl])
-
-triangles = [
-    STLTriangle(data[i:i + 50])
-    for i in range(84, len(data), 50)
-]
-
-print(triangles[0])
-
-st = ""
-st += f"solid {stl.header}\n"
-for triangle in triangles:
-    st += f"  facet normal {' '.join(str(val) for val in triangle.normal).strip()}\n"
-    st += "    outer loop\n"
-    st += f"      vertex {' '.join(str(val) for val in triangle.vertex1).strip()}\n"
-    st += f"      vertex {' '.join(str(val) for val in triangle.vertex2).strip()}\n"
-    st += f"      vertex {' '.join(str(val) for val in triangle.vertex3).strip()}\n"
-    st += "    endloop\n"
-    st += "  endfacet\n"
-
-st += f"endsolid {stl.header}"
-
-with open(f"OUT_STL_ASCII_{time()}.stl", mode="w") as fp:
-    fp.write(st)

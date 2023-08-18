@@ -256,6 +256,10 @@ class STL:
         self._n_triangles = self.data["n_triangles"]
         self._triangles = self.data["triangles"]
 
+        # Extra attributes:
+        self._is_input_binary = not data.isascii()
+        self._is_input_ascii = data.isascii()
+
     @property
     def header(self) -> str:
         """Get STL file header.

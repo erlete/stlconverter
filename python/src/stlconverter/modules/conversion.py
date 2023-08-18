@@ -180,28 +180,76 @@ class STLTriangle:
 
 
 class STL:
+    """STL file representation class.
+
+    Attributes:
+        byte_data (bytes): Byte data of the STL file.
+
+    Properties:
+        header (str): Header of the STL file.
+        ntriangles (int): Number of triangles in the STL file.
+        triangles (Tuple[STLTriangle, ...]): Triangles in the STL file.
+    """
+
     _STOPS = {
         "header": 80,
         "ntriangles": 84
     }
 
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, byte_data):
+        """Initialize a STL instance.
+
+        Args:
+            byte_data (bytes): Byte data of the STL file.
+        """
+        self.byte_data = byte_data
 
     @property
     def header(self):
-        return self.data[:self._STOPS["header"]].strip(b"\x00").decode("ASCII")
+        """Get the header of the STL file.
+
+        Returns:
+            str: Header of the STL file.
+        """
+        return self.byte_data[:self._STOPS["header"]].strip(b"\x00").decode("ASCII")
 
     @property
     def ntriangles(self):
+        """Get the number of triangles in the STL file.
+
+        Returns:
+            int: Number of triangles in the STL file.
+        """
         return ByteConversion.bytes_to_uint(
-            self.data[self._STOPS["header"]:self._STOPS["ntriangles"]]
+            self.byte_data[self._STOPS["header"]:self._STOPS["ntriangles"]]
+        )
+
+    @property
+    def triangles(self):
+        """Get the triangles in the STL file.
+
+        Returns:
+            Tuple[STLTriangle, ...]: Triangles in the STL file.
+        """
+        return tuple(
+            STLTriangle(self.byte_data[i:i + 50])
+            for i in range(self._STOPS["ntriangles"], len(self.byte_data), 50)
         )
 
     def __repr__(self):
+        """Get the raw representation of the STL file.
+
+        Returns:
+            str: Raw representation of the STL file.
+        """
         return f"<STL with {self.ntriangles} triangles>"
 
     def __str__(self):
+        """Get the extended representation of the STL file.
+
+        Returns:
+            str: Extended representation of the STL file.
+        """
         return f"""STL:
     Header:    {self.header}
     Triangles: {self.ntriangles}"""

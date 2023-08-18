@@ -114,7 +114,7 @@ class STLTriangle:
         "attribute": 50
     }
 
-    def __init__(self, byte_data):
+    def __init__(self, byte_data: bytes) -> None:
         """Initialize a STLTriangle instance.
 
         Args:
@@ -123,7 +123,7 @@ class STLTriangle:
         self.byte_data = byte_data
 
     @property
-    def normal(self):
+    def normal(self) -> Tuple[float, float, float]:
         """Get the normal vector of the triangle.
 
         Returns:
@@ -134,7 +134,7 @@ class STLTriangle:
         )
 
     @property
-    def vertices(self):
+    def vertices(self) -> Tuple[Tuple[float, float, float], ...]:
         """Get the vertices of the triangle.
 
         Returns:
@@ -147,7 +147,7 @@ class STLTriangle:
         )
 
     @property
-    def attribute_byte_count(self):
+    def attribute_byte_count(self) -> int:
         """Get the attribute byte count of the triangle.
 
         Returns:
@@ -155,7 +155,7 @@ class STLTriangle:
         """
         return ByteConversion.bytes_to_uint(self.byte_data[48:50])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Get the raw representation of the triangle.
 
         Returns:
@@ -163,7 +163,7 @@ class STLTriangle:
         """
         return "<STL Triangle>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Get the extended representation of the triangle.
 
         Returns:
@@ -196,7 +196,7 @@ class STL:
         "ntriangles": 84
     }
 
-    def __init__(self, byte_data):
+    def __init__(self, byte_data: bytes) -> None:
         """Initialize a STL instance.
 
         Args:
@@ -205,7 +205,7 @@ class STL:
         self.byte_data = byte_data
 
     @property
-    def header(self):
+    def header(self) -> str:
         """Get the header of the STL file.
 
         Returns:
@@ -214,7 +214,7 @@ class STL:
         return self.byte_data[:self._STOPS["header"]].strip(b"\x00").decode("ASCII")
 
     @property
-    def ntriangles(self):
+    def ntriangles(self) -> int:
         """Get the number of triangles in the STL file.
 
         Returns:
@@ -225,7 +225,7 @@ class STL:
         )
 
     @property
-    def triangles(self):
+    def triangles(self) -> Tuple[STLTriangle, ...]:
         """Get the triangles in the STL file.
 
         Returns:
@@ -236,7 +236,7 @@ class STL:
             for i in range(self._STOPS["ntriangles"], len(self.byte_data), 50)
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Get the raw representation of the STL file.
 
         Returns:
@@ -244,7 +244,7 @@ class STL:
         """
         return f"<STL with {self.ntriangles} triangles>"
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Get the extended representation of the STL file.
 
         Returns:

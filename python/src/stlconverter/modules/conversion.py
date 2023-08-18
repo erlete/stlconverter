@@ -40,7 +40,6 @@ Author:
 
 
 import struct
-from typing import Tuple
 from typing import Any, Dict, Tuple, Union
 
 
@@ -143,7 +142,6 @@ class TriangleReader(Reader):
         }
 
 
-
 class FileReader(Reader):
 
     @classmethod
@@ -175,6 +173,46 @@ class STL:
 
     def __init__(self, data: Union[bytes, str]) -> None:
         self.data = FileReader.read(data)
+    def __init__(self, path: str) -> None:
+        with open(path, mode="rb") as fp:
+            data = fp.read()
+
+        if data.isascii():
+            self.data = FileReader.read(data.decode("utf-8"))
+        else:
+            self.data = FileReader.read(data)
+
+        # Set attributes for property access:
+        self._header = self.data["header"]
+        self._n_triangles = self.data["n_triangles"]
+        self._triangles = self.data["triangles"]
+
+    @property
+    def header(self) -> str:
+        """Get STL file header.
+
+        Returns:
+            str: STL file header.
+        """
+        return self._header
+
+    @property
+    def n_triangles(self) -> int:
+        """Get number of triangles in the STL file.
+
+        Returns:
+            int: number of triangles in the STL file.
+        """
+        return self._n_triangles
+
+    @property
+    def triangles(self) -> Tuple[Dict[str, Any], ...]:
+        """Get triangles in the STL file.
+
+        Returns:
+            Tuple[Dict[str, Any], ...]: triangles in the STL file.
+        """
+        return self._triangles
 
     def to_stlb(self) -> bytes:
         pass

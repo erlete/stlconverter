@@ -91,6 +91,20 @@ class ByteConversion:
 
 
 class STLTriangle:
+    """STL Triangle representation class.
+
+    This class represents a single triangle in an STL file. It contains the
+    triangle's normal vector, its three vertices and the attribute byte count.
+
+    Attributes:
+        byte_data (bytes): Byte data of the triangle.
+
+    Properties:
+        normal (Tuple[float, float, float]): Normal vector of the triangle.
+        vertices (Tuple[Tuple[float, float, float], ...]): Vertices of the
+            triangle.
+        attribute_byte_count (int): Attribute byte count of the triangle.
+    """
 
     _STOPS = {
         "normal": 12,
@@ -101,16 +115,31 @@ class STLTriangle:
     }
 
     def __init__(self, byte_data):
+        """Initialize a STLTriangle instance.
+
+        Args:
+            byte_data (bytes): Byte data of the triangle.
+        """
         self.byte_data = byte_data
 
     @property
     def normal(self):
+        """Get the normal vector of the triangle.
+
+        Returns:
+            Tuple[float, float, float]: Normal vector of the triangle.
+        """
         return ByteConversion.byte_coord_to_real32(
             self.byte_data[:self._STOPS["normal"]]
         )
 
     @property
     def vertices(self):
+        """Get the vertices of the triangle.
+
+        Returns:
+            Tuple[Tuple[float, float, float], ...]: Vertices of the triangle.
+        """
         step = self._STOPS["vertex2"] - self._STOPS["vertex1"]
         return tuple(
             ByteConversion.byte_coord_to_real32(self.byte_data[i:i + step])
@@ -119,12 +148,27 @@ class STLTriangle:
 
     @property
     def attribute_byte_count(self):
+        """Get the attribute byte count of the triangle.
+
+        Returns:
+            int: Attribute byte count of the triangle.
+        """
         return ByteConversion.bytes_to_uint(self.byte_data[48:50])
 
     def __repr__(self):
+        """Get the raw representation of the triangle.
+
+        Returns:
+            str: Raw representation of the triangle.
+        """
         return "<STL Triangle>"
 
     def __str__(self):
+        """Get the extended representation of the triangle.
+
+        Returns:
+            str: Extended representation of the triangle.
+        """
         vertices = "\n    ".join(
             f"Vertex {i + 1}:  {vertex}"
             for i, vertex in enumerate(self.vertices)
@@ -133,6 +177,7 @@ class STLTriangle:
     Normal:    {self.normal}
     {vertices}
     Attribute: {self.attribute_byte_count}"""
+
 
 class STL:
     _STOPS = {

@@ -110,6 +110,38 @@ class Reader:
             raise TypeError("data must be a type \"bytes\" or \"str\"")
 
 
+class TriangleReader(Reader):
+
+    @classmethod
+    def _read_stlb(cls, data: bytes) -> Dict[str, Any]:
+        return {
+            "normal": ByteConversion.byte_coord_to_real32(data[:12]),
+            "vertices": tuple(
+                ByteConversion.byte_coord_to_real32(data[i:i + 12])
+                for i in range(12, 48, 12)
+            ),
+            "attribute": ByteConversion.bytes_to_uint(data[48:50])
+        }
+
+    @classmethod
+    def _read_stla(cls, data: str) -> Dict[str, Any]:
+        lines = [line.strip() for line in data.strip().split("\n")]
+        return {
+            "normal": tuple(
+                float(val.strip())
+                for val in lines[0].strip("facet normal").strip().split()
+            ),
+            "vertices": tuple(
+                tuple(
+                    float(val.strip())
+                    for val in line.strip("vertex").strip().split()
+                )
+                for line in lines[2:5]
+            ),
+            "attribute": 0
+        }
+
+
             )
 
 

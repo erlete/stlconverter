@@ -90,8 +90,24 @@ class ByteConversion:
         return int.from_bytes(byte_data, "little")
 
 
+class Reader:
 
+    @classmethod
+    def _read_stlb(cls, data: bytes) -> Dict[str, Any]:
+        pass
 
+    @classmethod
+    def _read_stla(cls, data: str) -> Dict[str, Any]:
+        pass
+
+    @classmethod
+    def read(cls, data: Union[bytes, str]) -> Dict[str, Any]:
+        if isinstance(data, bytes):
+            return cls._read_stlb(data)
+        elif isinstance(data, str):
+            return cls._read_stla(data)
+        else:
+            raise TypeError("data must be a type \"bytes\" or \"str\"")
 
 
             )

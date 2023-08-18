@@ -91,17 +91,45 @@ class ByteConversion:
 
 
 class Reader:
+    """Generic reader interface class."""
 
     @classmethod
     def _read_stlb(cls, data: bytes) -> Dict[str, Any]:
-        pass
+        """Read STL binary data.
+
+        Args:
+            data (bytes): STL binary data.
+
+        Returns:
+            Dict[str, Any]: normalized transition data.
+        """
+        return {}
 
     @classmethod
     def _read_stla(cls, data: str) -> Dict[str, Any]:
-        pass
+        """Read STL ASCII data.
+
+        Args:
+            data (str): STL ASCII data.
+
+        Returns:
+            Dict[str, Any]: normalized transition data.
+        """
+        return {}
 
     @classmethod
     def read(cls, data: Union[bytes, str]) -> Dict[str, Any]:
+        """Interface reading method.
+
+        Args:
+            data (Union[bytes, str]): STL data (either ASCII or binary).
+
+        Raises:
+            TypeError: if data is not a type "bytes" or "str".
+
+        Returns:
+            Dict[str, Any]: normalized transition data.
+        """
         if isinstance(data, bytes):
             return cls._read_stlb(data)
         elif isinstance(data, str):
@@ -111,6 +139,19 @@ class Reader:
 
 
 class TriangleReader(Reader):
+    """Specific implementation of the Reader interface for STL triangles.
+
+    This class is responsible for reading STL triangle data, which is composed
+    of a normal vector, three vertices and an attribute byte count. After
+    reading the data, it is stored in a transition dictionary, which follows
+    the following structure:
+
+        {
+            "normal": Tuple[Float, Float, Float],
+            "vertices": Tuple[Tuple[Float, Float, Float], ...],
+            "attribute": Int
+        }
+    """
 
     @classmethod
     def _read_stlb(cls, data: bytes) -> Dict[str, Any]:
@@ -143,6 +184,19 @@ class TriangleReader(Reader):
 
 
 class FileReader(Reader):
+    """Specific implementation of the Reader interface for STL files.
+
+    This class is responsible for reading STL file data, which is composed of
+    a header, the number of triangles and the triangles themselves. After
+    reading the data, it is stored in a transition dictionary, which follows
+    the following structure:
+
+        {
+            "header": String,
+            "n_triangles": Int,
+            "triangles": Tuple[Dict[str, Any], ...]
+        }
+    """
 
     @classmethod
     def _read_stlb(cls, data: bytes) -> Dict[str, Any]:
@@ -170,10 +224,25 @@ class FileReader(Reader):
 
 
 class STL:
+    """STL file structural class.
+
+    This class is responsible for reading and storing STL file transition
+    data so that it can be easily exported to STL ASCII or binary formats.
+
+    Properties:
+        header (str): STL file header.
+        n_triangles (int): number of triangles in the STL file.
+        triangles (Tuple[Dict[str, Any], ...]): triangles in the STL file.
+    """
 
     _INDENTATION_SPACES = 2
 
     def __init__(self, path: str) -> None:
+        """Initialize an STL instance.
+
+        Args:
+            path (str): path to the STL file.
+        """
         with open(path, mode="rb") as fp:
             data = fp.read()
 
@@ -214,10 +283,24 @@ class STL:
         """
         return self._triangles
 
-    def _indent(self, data, level):
-        return f"{self._INDENTATION_SPACES * level * ' '}{data}"
+    def _indent(self, text: str, level: int) -> str:
+        """Indent text using `STL._INDENTATION_SPACES`.
+
+        Args:
+            text (str): text to be indented.
+            level (int): indentation level.
+
+        Returns:
+            str: indented text.
+        """
+        return f"{self._INDENTATION_SPACES * level * ' '}{text}"
 
     def to_stlb(self) -> bytes:
+        """Convert STL data to STL binary format.
+
+        Returns:
+            bytes: STL binary data.
+        """
         header = self.data["header"].encode("ASCII")
         output = header + b"\x00" * (80 - len(header))
         output += struct.pack("<I", self.data["n_triangles"])
@@ -230,6 +313,11 @@ class STL:
         return output
 
     def to_stla(self) -> str:
+        """Convert STL data to STL ASCII format.
+
+        Returns:
+            str: STL ASCII data.
+        """
         output = f"solid {self.header}\n"
         for triangle in self.triangles:
             normal = " ".join(str(val) for val in triangle['normal']).strip()
@@ -247,10 +335,20 @@ class STL:
         output += f"endsolid {self.header}"
         return output
 
-    def save_stla(self, path: str) -> None:
-        with open(path, mode="w", encoding="utf-8") as fp:
-            fp.write(self.to_stla())
-
     def save_stlb(self, path: str) -> None:
+        """Save STL data to STL binary format.
+
+        Args:
+            path (str): path to the STL binary file.
+        """
         with open(path, mode="wb") as fp:
             fp.write(self.to_stlb())
+
+    def save_stla(self, path: str) -> None:
+        """Save STL data to STL ASCII format.
+
+        Args:
+            path (str): path to the STL ASCII file.
+        """
+        with open(path, mode="w", encoding="utf-8") as fp:
+            fp.write(self.to_stla())

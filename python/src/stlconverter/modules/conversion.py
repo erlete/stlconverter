@@ -171,8 +171,8 @@ class FileReader(Reader):
 
 class STL:
 
-    def __init__(self, data: Union[bytes, str]) -> None:
-        self.data = FileReader.read(data)
+    _INDENTATION_SPACES = 2
+
     def __init__(self, path: str) -> None:
         with open(path, mode="rb") as fp:
             data = fp.read()
@@ -213,6 +213,9 @@ class STL:
             Tuple[Dict[str, Any], ...]: triangles in the STL file.
         """
         return self._triangles
+
+    def _indent(self, data, level):
+        return f"{self._INDENTATION_SPACES * level * ' '}{data}"
 
     def to_stlb(self) -> bytes:
         pass

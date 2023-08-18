@@ -40,26 +40,55 @@ Author:
 
 
 import struct
-from pprint import pprint
 from time import time
+from typing import Tuple
 
 
 class ByteConversion:
+    """Byte conversion class.
+
+    This class contains several methods for converting bytes to other data
+    types, such as IEEE-754 floating-point numbers and unsigned integers.
+    """
 
     @staticmethod
-    def bytes_to_real32(data):
-        return struct.unpack("<f", data)[0]
+    def bytes_to_real32(byte_quad: bytes) -> float:
+        """Convert byte quadruplet to IEEE-754 floating-point number.
+
+        Args:
+            byte_quad (bytes): Byte quadruplet to be converted.
+
+        Returns:
+            float: IEEE-754 floating-point number.
+        """
+        return struct.unpack("<f", byte_quad)[0]
 
     @staticmethod
-    def byte_coord_to_real32(data):
+    def byte_coord_to_real32(byte_coord: bytes) -> Tuple[float, ...]:
+        """Convert byte-based 3D coordinate to IEEE-754 floating-point number.
+
+        Args:
+            byte_coord (bytes): Byte-based 3D coordinate to be converted.
+
+        Returns:
+            Tuple[Float, Float, Float]: IEEE-754 floating-point 3D coordinate.
+        """
         return tuple(
-            ByteConversion.bytes_to_real32(data[i:i + 4])
-            for i in range(0, len(data), 4)
+            ByteConversion.bytes_to_real32(byte_coord[i:i + 4])
+            for i in range(0, len(byte_coord), 4)
         )
 
     @staticmethod
-    def bytes_to_uint(data):
-        return int.from_bytes(data, "little")
+    def bytes_to_uint(byte_data: bytes) -> int:
+        """Convert byte value to unsigned integer.
+
+        Args:
+            byte_data (bytes): Byte value to be converted.
+
+        Returns:
+            int: Unsigned integer.
+        """
+        return int.from_bytes(byte_data, "little")
 
 
 class STLTriangle:

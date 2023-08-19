@@ -201,41 +201,43 @@ function readSTL(file) {
  */
 function saveSTLb() {
     if (windowData !== null) {
-        let header = windowData.header;
-        header = header.split("").map(char => char.charCodeAt(0));
-        header = header.concat(Array(80 - header.length).fill(0));
-        header = new Uint8Array(header);
+        // Convert header:
+        let header = windowData.header.split("").map(char => char.charCodeAt(0));  // Header as byte array.
+        header = header.concat(Array(80 - header.length).fill(0));  // Fill with null bytes up to 80 bytes.
+        header = new Uint8Array(header);  // Convert to Uint8Array.
 
-        let n_triangles = new Uint32Array(1);
-        n_triangles[0] = windowData.n_triangles;
-        n_triangles = new Uint8Array(n_triangles.buffer);
+        // Convert number of triangles:
+        let n_triangles = new Uint32Array(1);  // Original 32-bit integer.
+        n_triangles[0] = windowData.n_triangles;  // Set numeric value.
+        n_triangles = new Uint8Array(n_triangles.buffer);  // Convert to 8-bit integer quadruplet.
 
-        let triangles = [];
-        for (let i = 0; i < windowData.n_triangles; i++) {
-            let triangle = windowData.triangles[i];
-            let normal = new Uint8Array(new Float32Array(triangle.normal).buffer);
-
-            let vertices = [];
-            for (let j = 0; j < 3; j++) {
-                vertices.push(new Uint8Array(new Float32Array(triangle.vertices[j]).buffer));
-            }
-            let attribute = new Uint8Array(new Uint16Array([triangle.attribute]).buffer);
-
-            const outArray = new Uint8Array(50);
-            outArray.set(normal);
-            outArray.set(vertices[0], 12);
-            outArray.set(vertices[1], 24);
-            outArray.set(vertices[2], 36);
-            outArray.set(attribute, 48);
-
-            triangles.push(outArray);
-        }
-
-        let output = new Uint8Array(header.length + n_triangles.length + triangles.length * 50);
+        // Create output byte array and set header and number of triangles:
+        let output = new Uint8Array(header.length + n_triangles.length + windowData.n_triangles * 50);
         output.set(header);
         output.set(n_triangles, header.length);
-        for (let i = 0; i < triangles.length; i++) {
-            output.set(triangles[i], header.length + n_triangles.length + i * 50);
+
+        // Convert triangles:
+        for (let i = 0; i < windowData.triangles.length; i++) {
+            // Create triangle output byte array and set values:
+            let triangleOutput = new Uint8Array(50);
+            triangleOutput.set(new Uint8Array(new Float32Array(windowData.triangles[i].normal).buffer));
+
+            // Convert vertices:
+            for (let j = 0; j < 3; j++) {
+                triangleOutput.set(
+                    new Uint8Array(new Float32Array(windowData.triangles[i].vertices[j]).buffer),
+                    12 + j * 12
+                );
+            }
+
+            // Convert attribute:
+            triangleOutput.set(
+                new Uint8Array(new Uint16Array([windowData.triangles[i].attribute]).buffer),
+                48
+            );
+
+            // Set triangle output to output:
+            output.set(triangleOutput, header.length + n_triangles.length + i * 50);
         }
 
         saveFile(`${fileName}-converted-binary.stl`, "application/octet-stream", output)

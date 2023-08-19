@@ -60,7 +60,16 @@ Usage:
         if not os.path.isfile(arguments[0]):
             print(
                 Style.BRIGHT + Fore.RED +
-                f"Error: input file \"{arguments[0]}\" does not exist"
+                f"[Error] input file \"{arguments[0]}\" does not exist"
+                + Style.RESET_ALL
+            )
+            exit(1)
+
+        # Input file extension checking:
+        if not arguments[0].lower().endswith(".stl"):
+            print(
+                Style.BRIGHT + Fore.RED +
+                f"[Error] input file \"{arguments[0]}\" is not a .stl file"
                 + Style.RESET_ALL
             )
             exit(1)
@@ -69,7 +78,7 @@ Usage:
         if not arguments[1].upper() in ("STLB", "STLA"):
             print(
                 Style.BRIGHT + Fore.RED +
-                "Error: output mode must be \"SLTB\" (binary) or \"STLA\""
+                "[Error] output mode must be \"SLTB\" (binary) or \"STLA\""
                 + " (ASCII)" + Style.RESET_ALL
             )
             exit(1)

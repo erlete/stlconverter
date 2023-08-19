@@ -86,20 +86,14 @@ function saveFile(name, type, data) {
  * @returns {{ normal: number[]; vertices: number[][]; attribute: number; }} - Transition data structure.
  */
 function readSTLaTriangle(data) {
-    normal = data[0].replace("facet normal ", "").split(" ").map(parseFloat);
-
-    vertices = [
-        data[2].replace("vertex ", "").split(" ").map(parseFloat),
-        data[3].replace("vertex ", "").split(" ").map(parseFloat),
-        data[4].replace("vertex ", "").split(" ").map(parseFloat)
-    ];
-
-    attribute = 0;
-
     return {
-        normal: normal,
-        vertices: vertices,
-        attribute: attribute
+        normal: data[0].replace("facet normal ", "").split(" ").map(parseFloat),
+        vertices: [
+            data[2].replace("vertex ", "").split(" ").map(parseFloat),
+            data[3].replace("vertex ", "").split(" ").map(parseFloat),
+            data[4].replace("vertex ", "").split(" ").map(parseFloat)
+        ],
+        attribute: 0
     }
 }
 
@@ -111,20 +105,14 @@ function readSTLaTriangle(data) {
  * @returns {{ normal: number[]; vertices: number[][]; attribute: number; }} - Transition data structure.
  */
 function readSTLbTriangle(data) {
-    normal = parseBytes(new Float32Array(data.slice(0, 12).buffer));
-
-    vertices = [
-        parseBytes(new Float32Array(data.slice(12, 24).buffer)),
-        parseBytes(new Float32Array(data.slice(24, 36).buffer)),
-        parseBytes(new Float32Array(data.slice(36, 48).buffer))
-    ];
-
-    attribute = new Uint16Array(data.slice(48, 50).buffer)[0];
-
     return {
-        normal: normal,
-        vertices: vertices,
-        attribute: attribute
+        normal: parseBytes(new Float32Array(data.slice(0, 12).buffer)),
+        vertices: [
+            parseBytes(new Float32Array(data.slice(12, 24).buffer)),
+            parseBytes(new Float32Array(data.slice(24, 36).buffer)),
+            parseBytes(new Float32Array(data.slice(36, 48).buffer))
+        ],
+        attribute: new Uint16Array(data.slice(48, 50).buffer)[0]
     }
 }
 

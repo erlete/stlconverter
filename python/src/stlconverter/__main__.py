@@ -27,50 +27,55 @@ def same_format_warn(input_handler: InputHandler, stl: STL) -> None:
     if input_handler.is_binary and stl._is_input_binary:
         print(
             Style.BRIGHT + Fore.YELLOW
-            + "Warning: detected same input and output format (binary)."
-            " File contents will remain unchanged after conversion"
+            + "[Warning] Detected same input and output format (binary)."
             + Style.RESET_ALL
         )
     elif input_handler.is_ascii and stl._is_input_ascii:
         print(
             Style.BRIGHT + Fore.YELLOW
-            + "Warning: detected same input and output format (ASCII)."
+            + "[Warning] Detected same input and output format (ASCII)."
             + Style.RESET_ALL
         )
 
 
-init()  # Initialize colorama.
+init()  # Colorized output initialization.
 handler = InputHandler(sys.argv[1:])
-out_name = (
-    f"{handler.input_path[:handler.input_path.rfind('.')]}-converted"
-    + f"-{pc()}.stl"
-)
 
 try:
     stl = STL(handler.input_path)
+
+    # Conversion mode detection:
     in_mode = "binary" if stl._is_input_binary else "ASCII"
     out_mode = "binary" if handler.is_binary else "ASCII"
 
+    # Conversion name and report:
+    out_name = (
+        f"{handler.input_path[:handler.input_path.rfind('.')]}-converted"
+        + f"-{out_mode}.stl"
+    )
     print(
         Style.BRIGHT + Fore.GREEN
-        + f"Converting \"{handler.input_path}\" ({in_mode}) to "
+        + f"[Log] Converting \"{handler.input_path}\" ({in_mode}) to "
         + f"\"{out_name}\" ({out_mode})..."
         + Style.RESET_ALL
     )
 
+    # Conversion saving and same format warning:
     if handler.is_binary:
         same_format_warn(handler, stl)
         stl.save_stlb(out_name)
     else:
         same_format_warn(handler, stl)
         stl.save_stla(out_name)
-except Exception:  # Uncaught exceptions.
+
+except Exception:  # Uncaught exceptions:
     print(
         Style.BRIGHT + Fore.RED
-        + f"Unknown error: {Style.RESET_ALL}{str(sys.exc_info()[1])}"
+        + f"[Error] (Unknown) {Style.RESET_ALL}{str(sys.exc_info()[1])}"
     )
-else:  # Successful conversion.
+
+else:  # Successful conversion:
     print(
         Style.BRIGHT + Fore.GREEN
-        + f"File successfully converted to {in_mode} format"
+        + f"[Log] File successfully converted to {in_mode} format"
     )

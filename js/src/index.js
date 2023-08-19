@@ -13,6 +13,10 @@ function getResults(event) {
 
 function resetView() {}
 
-function submit() {
+function submit1() {
+    saveSTLb();
+}
 
+function submit2() {
+    saveSTLa();
 }

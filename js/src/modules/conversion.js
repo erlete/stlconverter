@@ -1,27 +1,67 @@
-let windowData = null;
-let fileName = null;
 const INDENTATION_SPACES = 2;
+
+// Global variables:
+
+let windowData = null; // Contains latest read file data.
+let fileName = null; // Contains latest read file name (without extension).
 
 // Auxiliary functions:
 
-function indent(text, indentation) {
-    return `${" ".repeat(indentation * INDENTATION_SPACES)}${text}`;
-}
-
+/**
+ * Parse a byte array to a number array.
+ * @date 8/19/2023 - 11:27:35 PM
+*
+* @param {Uint8Array} byteArray - Byte array.
+* @returns {number[]} Number array.
+*/
 function parseBytes(byteArray) {
     return Array.prototype.slice.call(byteArray).map(byte => byte);
 }
 
-function compareArrays(array1, array2) {
-    return array1.length === array2.length && array1.every((value, index) => value === array2[index]);
-}
-
+/**
+ * Convert an array buffer to a UTF-8 string.
+ * @date 8/19/2023 - 11:28:24 PM
+*
+* @param {ArrayBuffer} buffer - Array buffer.
+* @returns {string} UTF-8 string.
+*/
 function arrayBufferToString(buffer) {
     return (new TextDecoder("utf-8")).decode(buffer);
 }
 
+/**
+ * Compare equality between two arrays.
+ * @date 8/19/2023 - 11:28:00 PM
+*
+* @param {*} array1 - Array 1.
+* @param {*} array2 - Array 2.
+* @returns {boolean} Equality.
+*/
+function compareArrays(array1, array2) {
+    return array1.length === array2.length && array1.every((value, index) => value === array2[index]);
+}
+
+/**
+ * Indent a text with spaces by level multiplier `INDENTATION_SPACES`.
+ * @date 8/19/2023 - 11:26:34 PM
+ *
+ * @param {string} text - Text to indent.
+ * @param {number} indentation - Indentation level.
+ * @returns {string} Indented text.
+ */
+function indent(text, indentation) {
+    return `${" ".repeat(indentation * INDENTATION_SPACES)}${text}`;
+}
+
 // STL triangle readers:
 
+/**
+ * Read a triangle from an ASCII STL file and convert it to transition data structure.
+ * @date 8/19/2023 - 11:29:42 PM
+ *
+ * @param {string[]} data - Triangle data.
+ * @returns {{ normal: number[]; vertices: number[][]; attribute: number; }} - Transition data structure.
+ */
 function readSTLaTriangle(data) {
     normal = data[0].replace("facet normal ", "").split(" ").map(parseFloat);
 
@@ -40,6 +80,13 @@ function readSTLaTriangle(data) {
     }
 }
 
+/**
+ * Read a triangle from a binary STL file and convert it to transition data structure.
+ * @date 8/19/2023 - 11:30:49 PM
+ *
+ * @param {Uint8Array} data - Triangle data.
+ * @returns {{ normal: number[]; vertices: number[][]; attribute: number; }} - Transition data structure.
+ */
 function readSTLbTriangle(data) {
     normal = parseBytes(new Float32Array(data.slice(0, 12).buffer));
 
@@ -60,6 +107,13 @@ function readSTLbTriangle(data) {
 
 // STL file readers:
 
+/**
+ * Read an ASCII STL file and convert it to transition data structure.
+ * @date 8/19/2023 - 11:31:06 PM
+ *
+ * @param {string} data - File data.
+ * @returns {{ header: string; n_triangles: number; triangles: any; }} - Transition data structure.
+ */
 function readSTLaFile(data) {
     data = arrayBufferToString(data);
     const lines = data.split("\n").map(line => line.trim());
@@ -81,6 +135,13 @@ function readSTLaFile(data) {
     }
 }
 
+/**
+ * Read a binary STL file and convert it to transition data structure.
+ * @date 8/19/2023 - 11:32:38 PM
+ *
+ * @param {Uint8Array} data - File data.
+ * @returns {{ header: string; n_triangles: number; triangles: any; }} - Transition data structure.
+ */
 function readSTLbFile(data) {
     header = data.slice(0, 80);
     header = arrayBufferToString(header.slice(0, header.indexOf(0)));
@@ -100,6 +161,12 @@ function readSTLbFile(data) {
     }
 }
 
+/**
+ * Read an STL file, detect its type and convert it to transition data structure.
+ * @date 8/19/2023 - 11:32:55 PM
+ *
+ * @param {File} file - Input file.
+ */
 function readSTL(file) {
     const reader = new FileReader();
     fileName = file.name.replace(".stl", "");
@@ -122,6 +189,10 @@ function readSTL(file) {
 
 // STL file writers:
 
+/**
+ * Save converted transition data structure to a binary STL file and save it.
+ * @date 8/19/2023 - 11:33:25 PM
+ */
 function saveSTLb() {
     if (windowData !== null) {
         let header = windowData.header;
@@ -162,8 +233,8 @@ function saveSTLb() {
         }
 
         const name = `${fileName}-converted-binary.stl`
-        const blob = new Blob([output], {type: "application/octet-stream"});
-        if(window.navigator.msSaveOrOpenBlob) {
+        const blob = new Blob([output], { type: "application/octet-stream" });
+        if (window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveBlob(blob, name);
         } else {
             const elem = window.document.createElement("a");
@@ -173,12 +244,13 @@ function saveSTLb() {
             elem.click();
             document.body.removeChild(elem);
         }
-
-   }
-
-    return windowData;
+    }
 }
 
+/**
+ * Save converted transition data structure to an ASCII STL file and save it.
+ * @date 8/19/2023 - 11:34:21 PM
+ */
 function saveSTLa() {
     if (windowData !== null) {
         let output = "solid " + windowData.header + "\n";
@@ -195,8 +267,8 @@ function saveSTLa() {
         output = output.replace(/,/g, " ")
 
         const name = `${fileName}-converted-binary.stl`
-        const blob = new Blob([output], {type: "text/plain"});
-        if(window.navigator.msSaveOrOpenBlob) {
+        const blob = new Blob([output], { type: "text/plain" });
+        if (window.navigator.msSaveOrOpenBlob) {
             window.navigator.msSaveBlob(blob, name);
         } else {
             const elem = window.document.createElement("a");
@@ -207,6 +279,4 @@ function saveSTLa() {
             document.body.removeChild(elem);
         }
     }
-
-    return windowData;
 }

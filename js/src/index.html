@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full prevent-select">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Algebruh - Modo Imagen</title>
+  <link rel="icon" type="image/x-icon" href="./media/icon.ico">
+
+  <link rel="stylesheet" href="./styles/output.css">
+  <script defer src="./index.js"></script>
+  <script defer src="./modules/conversion.js"></script>
+</head>
+
+<body class="h-full items-center no-scrollbar bg-gradient-to-r from-sky-100 to-indigo-200"
+  ondragenter="event.preventDefault()" ondrop="event.preventDefault()" ondragover="event.preventDefault()">
+
+  <main class="sm:grid sm:grid-cols-5 bg-gradient-to-r from-sky-100 to-indigo-200">
+    <div class="py-6 mb-6 col-start-2 col-span-3">
+      <div>
+        <!-- Input -->
+        <div class="overflow-hidden bg-white shadow-lg border-solid border-2 border-gray-300 rounded-lg">
+
+          <div class="border-t border-gray-200">
+            <!-- Image input -->
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-2 sm:gap-4 sm:px-6 shadow-inner">
+              <dd class="text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                <!-- Drag and drop area -->
+                <div class="bg-white p7 rounded">
+                  <div
+                    class="shadow-inner relative flex flex-col text-gray-400 border border-gray-200 rounded shadow rounded-lg">
+                    <div>
+
+                      <div id="div1" ondrop="readFile(event)" ondragover="resetView()"
+                        class="flex flex-col items-center justify-center py-5 text-center">
+                        <svg class="w-6 h-6 text-current-50" xmlns="http://www.w3.org/2000/svg" fill="none"
+                          viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p>Drag and drop your image here</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 grid grid-cols-2 gap-4 px-6 shadow-inner">
+              <a onclick="saveSTLb()"
+                class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Convert to STL Binary
+              </a>
+              <a onclick="saveSTLa()"
+                class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                Convert to STL ASCII
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</body>
+
+</html>

@@ -1,10 +1,13 @@
 [build-system]
-requires = []
+requires = [
+    "setuptools",
+    "colorama>=0.4.6"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "stlconverter"
-version = "0.0.0"
+version = "1.0.0"
 description = "STL/STLA file conversion utility."
 readme = "README.md"
 license = {file = "LICENSE"}

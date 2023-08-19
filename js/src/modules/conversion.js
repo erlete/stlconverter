@@ -53,6 +53,29 @@ function indent(text, indentation) {
     return `${" ".repeat(indentation * INDENTATION_SPACES)}${text}`;
 }
 
+/**
+ * Save file to device.
+ * @date 8/19/2023 - 11:48:26 PM
+ *
+ * @param {string} name - File name.
+ * @param {string} type - File type.
+ * @param {string} data - File data.
+ */
+function saveFile(name, type, data) {
+    const blob = new Blob([data], { type: type });
+
+    if (window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, name);
+    } else {
+        const elem = window.document.createElement("a");
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = name;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+    }
+}
+
 // STL triangle readers:
 
 /**
@@ -115,21 +138,18 @@ function readSTLbTriangle(data) {
  * @returns {{ header: string; n_triangles: number; triangles: any; }} - Transition data structure.
  */
 function readSTLaFile(data) {
-    data = arrayBufferToString(data);
-    const lines = data.split("\n").map(line => line.trim());
+    const lines = arrayBufferToString(data).split("\n").map(line => line.trim());
 
-    header = lines[0].replace("solid ", "");
+    let n_triangles = lines.filter(line => line.startsWith("facet")).length;
+    let triangles = [];
 
-    n_triangles = lines.filter(line => line.startsWith("facet")).length;
-
-    triangles = [];
     for (let i = 0; i < n_triangles; i++) {
         let triangle = lines.slice(1 + i * 7, 1 + (i + 1) * 7);
         triangles.push(readSTLaTriangle(triangle));
     }
 
     return {
-        header: header,
+        header: lines[0].replace("solid ", ""),
         n_triangles: n_triangles,
         triangles: triangles
     }
@@ -143,19 +163,16 @@ function readSTLaFile(data) {
  * @returns {{ header: string; n_triangles: number; triangles: any; }} - Transition data structure.
  */
 function readSTLbFile(data) {
-    header = data.slice(0, 80);
-    header = arrayBufferToString(header.slice(0, header.indexOf(0)));
+    let n_triangles = new Uint32Array(data.slice(80, 84).buffer)[0];
+    let triangles = [];
 
-    n_triangles = new Uint32Array(data.slice(80, 84).buffer)[0];
-
-    triangles = [];
     for (let i = 0; i < n_triangles; i++) {
         let triangle = data.slice(84 + i * 50, 84 + (i + 1) * 50);
         triangles.push(readSTLbTriangle(triangle));
     }
 
     return {
-        header: header,
+        header: arrayBufferToString(data.slice(0, data.indexOf(0))),
         n_triangles: n_triangles,
         triangles: triangles
     }
@@ -175,11 +192,12 @@ function readSTL(file) {
         const text = e.target.result;
         const bytes = new Uint8Array(text);
 
+        // Check if file is ASCII or binary (checking presence of the "solid" header in bytes):
         if (compareArrays(parseBytes(bytes.slice(0, 5)), [115, 111, 108, 105, 100])) {
-            console.log("ASCII");
+            console.log("[Log] Detected STL ASCII format.");
             windowData = readSTLaFile(text);
         } else {
-            console.log("Binary");
+            console.log("[Log] Detected STL binary format.");
             windowData = readSTLbFile(bytes);
         }
     };
@@ -232,18 +250,7 @@ function saveSTLb() {
             output.set(triangles[i], header.length + n_triangles.length + i * 50);
         }
 
-        const name = `${fileName}-converted-binary.stl`
-        const blob = new Blob([output], { type: "application/octet-stream" });
-        if (window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveBlob(blob, name);
-        } else {
-            const elem = window.document.createElement("a");
-            elem.href = window.URL.createObjectURL(blob);
-            elem.download = name;
-            document.body.appendChild(elem);
-            elem.click();
-            document.body.removeChild(elem);
-        }
+        saveFile(`${fileName}-converted-binary.stl`, "application/octet-stream", output)
     }
 }
 
@@ -266,17 +273,6 @@ function saveSTLa() {
         output += "endsolid " + windowData.header + "\n";
         output = output.replace(/,/g, " ")
 
-        const name = `${fileName}-converted-binary.stl`
-        const blob = new Blob([output], { type: "text/plain" });
-        if (window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveBlob(blob, name);
-        } else {
-            const elem = window.document.createElement("a");
-            elem.href = window.URL.createObjectURL(blob);
-            elem.download = name;
-            document.body.appendChild(elem);
-            elem.click();
-            document.body.removeChild(elem);
-        }
+        saveFile(`${fileName}-converted-ASCII.stl`, "text/plain", output)
     }
 }

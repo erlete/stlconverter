@@ -136,6 +136,8 @@ function readSTLaFile(data) {
         triangles.push(readSTLaTriangle(triangle));
     }
 
+    document.getElementById("buttons").style.display = "grid";
+
     return {
         header: lines[0].replace("solid ", ""),
         n_triangles: n_triangles,
@@ -158,6 +160,8 @@ function readSTLbFile(data) {
         let triangle = data.slice(84 + i * 50, 84 + (i + 1) * 50);
         triangles.push(readSTLbTriangle(triangle));
     }
+
+    document.getElementById("buttons").style.display = "grid";
 
     return {
         header: arrayBufferToString(data.slice(0, data.indexOf(0))),
@@ -182,10 +186,10 @@ function readSTL(file) {
 
         // Check if file is ASCII or binary (checking presence of the "solid" header in bytes):
         if (compareArrays(parseBytes(bytes.slice(0, 5)), [115, 111, 108, 105, 100])) {
-            console.log("[Log] Detected STL ASCII format.");
+            console.log("[Log] Detected STL ASCII format");
             windowData = readSTLaFile(text);
         } else {
-            console.log("[Log] Detected STL binary format.");
+            console.log("[Log] Detected STL binary format");
             windowData = readSTLbFile(bytes);
         }
 
@@ -197,9 +201,8 @@ function readSTL(file) {
     }
 
     reader.onloadend = function () {
-        document.getElementById("dnd-text").innerHTML = `File \"${baseName}\.stl" was read successfully.`;
+        document.getElementById("dnd-text").innerHTML = `File \"${baseName}\.stl" was read successfully`;
         document.getElementById("dnd-text").style.color = "#10B981";
-        document.getElementById("buttons").style.display = "grid";
     }
 
     reader.readAsArrayBuffer(file);

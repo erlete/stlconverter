@@ -9,8 +9,8 @@ build-backend = "setuptools.build_meta"
 name = "stlconverter"
 version = "1.0.1"
 description = "STL/STLA file conversion utility."
-readme = "README.md"
-license = {file = "LICENSE"}
+readme = "../README.md"
+license = {file = "../LICENSE"}
 requires-python = ">=3.9.0"
 authors = [
     {name = "Paulo Sanchez", email = "dev.szblzpaulo@gmail.com"}
@@ -28,3 +28,4 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/erlete/stl-converter"
 "Bug Tracker" = "https://github.com/erlete/stl-converter/issues"
+"Interactive Site" = "https://stlconverter.erlete.org"

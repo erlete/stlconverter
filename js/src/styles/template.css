@@ -4,6 +4,11 @@
 
 /* Custom */
 
+/* Hide element */
+.hidden {
+    display: none;
+}
+
 /* Prevent text selection */
 .prevent-select {
     -webkit-user-select: none;

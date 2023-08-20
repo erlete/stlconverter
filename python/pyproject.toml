@@ -28,4 +28,4 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/erlete/stl-converter"
 "Bug Tracker" = "https://github.com/erlete/stl-converter/issues"
-"Interactive Site" = "https://stlconverter.erlete.org"
+"Interactive Site" = "https://stlconverter.erlete.dev"

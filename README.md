@@ -1,4 +1,4 @@
-# [STL Converter](https://stlconverter.erlete.org)
+# [STL Converter](https://stlconverter.erlete.dev)
 
 This repository contains a multi-language STL data manipulation tool that can be used to convert STL binary files into ASCII ones and vice-versa.
 
@@ -12,7 +12,7 @@ The tool has also been developed in JavaScript (ES10) for web interface usage (o
 
 ### Web
 
-The web interface version is available [here](https://stlconverter.erlete.org).
+The web interface version is available [here](https://stlconverter.erlete.dev).
 
 ### Modular
 

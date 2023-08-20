@@ -4,8 +4,28 @@ const INDENTATION_SPACES = 2;
 
 let windowData = null; // Contains latest read file data.
 let baseName = null; // Contains latest read file name (without extension).
+let extension = null; // Contains latest read file extension.
+let isInvalidFile = false; // Indicates if the file is invalid.
 
 // Auxiliary functions:
+
+/**
+ * Set unknown error message in the drag and drop area.
+ * @date 8/20/2023 - 6:53:16 AM
+ */
+function setUnkownErrorMessage() {
+    document.getElementById("dnd-text").innerHTML = "There was an unknown error while processing the STL file";
+    document.getElementById("dnd-text").style.color = "#ef4444";
+}
+
+/**
+ * Set invalid extension error message in the drag and drop area.
+ * @date 8/20/2023 - 6:53:16 AM
+ */
+function setInvalidExtensionMessage() {
+    document.getElementById("dnd-text").innerHTML = `Detected invalid file extension \"${extension}\". Please, select a valid STL file`;
+    document.getElementById("dnd-text").style.color = "#ef4444";
+}
 
 /**
  * Parse a byte array to a number array.
@@ -136,6 +156,8 @@ function readSTLaFile(data) {
         triangles.push(readSTLaTriangle(triangle));
     }
 
+    document.getElementById("buttons").style.display = "grid";
+
     return {
         header: lines[0].replace("solid ", ""),
         n_triangles: n_triangles,
@@ -159,6 +181,8 @@ function readSTLbFile(data) {
         triangles.push(readSTLbTriangle(triangle));
     }
 
+    document.getElementById("buttons").style.display = "grid";
+
     return {
         header: arrayBufferToString(data.slice(0, data.indexOf(0))),
         n_triangles: n_triangles,
@@ -174,32 +198,38 @@ function readSTLbFile(data) {
  */
 function readSTL(file) {
     const reader = new FileReader();
-    baseName = file.name.replace(/\.stl$/i, "");
+    baseName = file.name.replace(/\..+$/i, "");
+    extension = file.name.replace(/^.*\./, "").toLowerCase();
+    isInvalidFile = extension !== "stl"
 
     reader.onload = function (e) {
-        const text = e.target.result;
-        const bytes = new Uint8Array(text);
+        if (!isInvalidFile) {
+            const text = e.target.result;
+            const bytes = new Uint8Array(text);
 
-        // Check if file is ASCII or binary (checking presence of the "solid" header in bytes):
-        if (compareArrays(parseBytes(bytes.slice(0, 5)), [115, 111, 108, 105, 100])) {
-            console.log("[Log] Detected STL ASCII format.");
-            windowData = readSTLaFile(text);
-        } else {
-            console.log("[Log] Detected STL binary format.");
-            windowData = readSTLbFile(bytes);
+            // Check if file is ASCII or binary (checking presence of the "solid" header in bytes):
+            if (compareArrays(parseBytes(bytes.slice(0, 5)), [115, 111, 108, 105, 100])) {
+                console.log("[Log] Detected STL ASCII format");
+                windowData = readSTLaFile(text);
+            } else {
+                console.log("[Log] Detected STL binary format");
+                windowData = readSTLbFile(bytes);
+            }
         }
-
     };
 
     reader.onloadstart = function () {
-        document.getElementById("dnd-text").innerHTML = `Reading file \"${baseName}.stl\"...`;
-        document.getElementById("dnd-text").style.color = "#FFA500";
+        document.getElementById("dnd-text").innerHTML = `Reading file \"${baseName}.${extension}\"...`;
+        document.getElementById("dnd-text").style.color = "#fb923c";
     }
 
     reader.onloadend = function () {
-        document.getElementById("dnd-text").innerHTML = `File \"${baseName}\.stl" was read successfully.`;
-        document.getElementById("dnd-text").style.color = "#10B981";
-        document.getElementById("buttons").style.display = "grid";
+        if (!isInvalidFile) {
+            document.getElementById("dnd-text").innerHTML = `File \"${baseName}\.${extension}" was read successfully`;
+            document.getElementById("dnd-text").style.color = "#7c3aed";
+        } else {
+            setInvalidExtensionMessage();
+        }
     }
 
     reader.readAsArrayBuffer(file);
@@ -213,46 +243,50 @@ function readSTL(file) {
  */
 function saveSTLb() {
     if (windowData !== null) {
-        // Convert header:
-        let header = windowData.header.split("").map(char => char.charCodeAt(0));  // Header as byte array.
-        header = header.concat(Array(80 - header.length).fill(0));  // Fill with null bytes up to 80 bytes.
-        header = new Uint8Array(header);  // Convert to Uint8Array.
+        try {
+            // Convert header:
+            let header = windowData.header.split("").map(char => char.charCodeAt(0));  // Header as byte array.
+            header = header.concat(Array(80 - header.length).fill(0));  // Fill with null bytes up to 80 bytes.
+            header = new Uint8Array(header);  // Convert to Uint8Array.
 
-        // Convert number of triangles:
-        let n_triangles = new Uint32Array(1);  // Original 32-bit integer.
-        n_triangles[0] = windowData.n_triangles;  // Set numeric value.
-        n_triangles = new Uint8Array(n_triangles.buffer);  // Convert to 8-bit integer quadruplet.
+            // Convert number of triangles:
+            let n_triangles = new Uint32Array(1);  // Original 32-bit integer.
+            n_triangles[0] = windowData.n_triangles;  // Set numeric value.
+            n_triangles = new Uint8Array(n_triangles.buffer);  // Convert to 8-bit integer quadruplet.
 
-        // Create output byte array and set header and number of triangles:
-        let output = new Uint8Array(header.length + n_triangles.length + windowData.n_triangles * 50);
-        output.set(header);
-        output.set(n_triangles, header.length);
+            // Create output byte array and set header and number of triangles:
+            let output = new Uint8Array(header.length + n_triangles.length + windowData.n_triangles * 50);
+            output.set(header);
+            output.set(n_triangles, header.length);
 
-        // Convert triangles:
-        for (let i = 0; i < windowData.triangles.length; i++) {
-            // Create triangle output byte array and set values:
-            let triangleOutput = new Uint8Array(50);
-            triangleOutput.set(new Uint8Array(new Float32Array(windowData.triangles[i].normal).buffer));
+            // Convert triangles:
+            for (let i = 0; i < windowData.triangles.length; i++) {
+                // Create triangle output byte array and set values:
+                let triangleOutput = new Uint8Array(50);
+                triangleOutput.set(new Uint8Array(new Float32Array(windowData.triangles[i].normal).buffer));
 
-            // Convert vertices:
-            for (let j = 0; j < 3; j++) {
+                // Convert vertices:
+                for (let j = 0; j < 3; j++) {
+                    triangleOutput.set(
+                        new Uint8Array(new Float32Array(windowData.triangles[i].vertices[j]).buffer),
+                        12 + j * 12
+                    );
+                }
+
+                // Convert attribute:
                 triangleOutput.set(
-                    new Uint8Array(new Float32Array(windowData.triangles[i].vertices[j]).buffer),
-                    12 + j * 12
+                    new Uint8Array(new Uint16Array([windowData.triangles[i].attribute]).buffer),
+                    48
                 );
+
+                // Set triangle output to output:
+                output.set(triangleOutput, header.length + n_triangles.length + i * 50);
             }
 
-            // Convert attribute:
-            triangleOutput.set(
-                new Uint8Array(new Uint16Array([windowData.triangles[i].attribute]).buffer),
-                48
-            );
-
-            // Set triangle output to output:
-            output.set(triangleOutput, header.length + n_triangles.length + i * 50);
+            saveFile(`${baseName}-converted-binary.stl`, "application/octet-stream", output)
+        } catch (error) {
+            setUnkownErrorMessage();
         }
-
-        saveFile(`${baseName}-converted-binary.stl`, "application/octet-stream", output)
     }
 }
 
@@ -262,19 +296,23 @@ function saveSTLb() {
  */
 function saveSTLa() {
     if (windowData !== null) {
-        let output = "solid " + windowData.header + "\n";
-        for (let i = 0; i < windowData.n_triangles; i++) {
-            output += indent("facet normal " + windowData.triangles[i].normal + "\n", 1);
-            output += indent("outer loop\n", 2);
-            for (let j = 0; j < 3; j++) {
-                output += indent("vertex " + windowData.triangles[i].vertices[j] + "\n", 3);
+        try {
+            let output = "solid " + windowData.header + "\n";
+            for (let i = 0; i < windowData.n_triangles; i++) {
+                output += indent("facet normal " + windowData.triangles[i].normal + "\n", 1);
+                output += indent("outer loop\n", 2);
+                for (let j = 0; j < 3; j++) {
+                    output += indent("vertex " + windowData.triangles[i].vertices[j] + "\n", 3);
+                }
+                output += indent("endloop\n", 2);
+                output += indent("endfacet\n", 1);
             }
-            output += indent("endloop\n", 2);
-            output += indent("endfacet\n", 1);
-        }
-        output += "endsolid " + windowData.header + "\n";
-        output = output.replace(/,/g, " ")
+            output += "endsolid " + windowData.header + "\n";
+            output = output.replace(/,/g, " ")
 
-        saveFile(`${baseName}-converted-ASCII.stl`, "text/plain", output)
+            saveFile(`${baseName}-converted-ASCII.stl`, "text/plain", output)
+        } catch (error) {
+            setUnkownErrorMessage();
+        }
     }
 }

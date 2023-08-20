@@ -7,11 +7,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stlconverter"
-version = "1.0.0"
+version = "1.0.1"
 description = "STL/STLA file conversion utility."
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.7.13"
+requires-python = ">=3.9.0"
 authors = [
     {name = "Paulo Sanchez", email = "dev.szblzpaulo@gmail.com"}
 ]

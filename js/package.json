@@ -1,7 +1,7 @@
 {
   "name": "stlconverter",
   "productName": "STL Converter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "STL/STLA file conversion utility.",
   "main": "js/src/index.js",
   "files": [
@@ -19,7 +19,6 @@
   },
   "license": "AGPL-3.0",
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.3",
     "tailwindcss": "^3.3.3"
   }
 }

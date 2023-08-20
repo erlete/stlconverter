@@ -4,30 +4,7 @@ This repository contains a multi-language STL data manipulation tool that can be
 
 ## Python
 
-The tool has been developed in Python>=3.9 for direct command line usage. Installation can be performed via `pip` and used through a really simple syntax.
-
-_Note: these instructions assume that your Python interpreter is alised as `python`. If you have configured it otherwise, please use the proper alias._
-
-### Installation
-
-```txt
-python -m pip install stlconverter
-```
-
-### Usage
-
-The command for invoking the STL converter tool is as follows:
-
-```txt
-python -m stlconverter <input file path> <output mode>
-```
-
-The arguments for the command are the following:
-
-- **Input file path**: the path to the STL file to be converted
-- **Output mode**: the identifier of the output mode for the conversion process (case insensitive)
-  - **STLB**: conversion to binary STL file
-  - **STLA**: conversion to ASCII STL file
+Check the dedicated [Python package README](./python/README.md) for more information on how to install and use the tool through Pyton.
 
 ## JavaScript
 

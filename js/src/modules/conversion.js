@@ -197,12 +197,12 @@ function readSTL(file) {
 
     reader.onloadstart = function () {
         document.getElementById("dnd-text").innerHTML = `Reading file \"${baseName}.stl\"...`;
-        document.getElementById("dnd-text").style.color = "#FFA500";
+        document.getElementById("dnd-text").style.color = "#fb923c";
     }
 
     reader.onloadend = function () {
         document.getElementById("dnd-text").innerHTML = `File \"${baseName}\.stl" was read successfully`;
-        document.getElementById("dnd-text").style.color = "#10B981";
+        document.getElementById("dnd-text").style.color = "#7c3aed";
     }
 
     reader.readAsArrayBuffer(file);

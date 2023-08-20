@@ -3,7 +3,7 @@ const INDENTATION_SPACES = 2;
 // Global variables:
 
 let windowData = null; // Contains latest read file data.
-let fileName = null; // Contains latest read file name (without extension).
+let baseName = null; // Contains latest read file name (without extension).
 
 // Auxiliary functions:
 
@@ -174,7 +174,7 @@ function readSTLbFile(data) {
  */
 function readSTL(file) {
     const reader = new FileReader();
-    fileName = file.name.replace(".stl", "");
+    baseName = file.name.replace(/\.stl$/i, "");
 
     reader.onload = function (e) {
         const text = e.target.result;
@@ -188,7 +188,19 @@ function readSTL(file) {
             console.log("[Log] Detected STL binary format.");
             windowData = readSTLbFile(bytes);
         }
+
     };
+
+    reader.onloadstart = function () {
+        document.getElementById("dnd-text").innerHTML = `Reading file \"${baseName}.stl\"...`;
+        document.getElementById("dnd-text").style.color = "#FFA500";
+    }
+
+    reader.onloadend = function () {
+        document.getElementById("dnd-text").innerHTML = `File \"${baseName}\.stl" was read successfully.`;
+        document.getElementById("dnd-text").style.color = "#10B981";
+        document.getElementById("buttons").style.display = "grid";
+    }
 
     reader.readAsArrayBuffer(file);
 }
@@ -240,7 +252,7 @@ function saveSTLb() {
             output.set(triangleOutput, header.length + n_triangles.length + i * 50);
         }
 
-        saveFile(`${fileName}-converted-binary.stl`, "application/octet-stream", output)
+        saveFile(`${baseName}-converted-binary.stl`, "application/octet-stream", output)
     }
 }
 
@@ -263,6 +275,6 @@ function saveSTLa() {
         output += "endsolid " + windowData.header + "\n";
         output = output.replace(/,/g, " ")
 
-        saveFile(`${fileName}-converted-ASCII.stl`, "text/plain", output)
+        saveFile(`${baseName}-converted-ASCII.stl`, "text/plain", output)
     }
 }

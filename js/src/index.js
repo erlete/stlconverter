@@ -15,5 +15,7 @@ function readFile(event) {
  * @date 8/20/2023 - 12:09:49 AM
  */
 function resetView() {
-
+    document.getElementById("buttons").style.display = "none";
+    document.getElementById("dnd-text").innerHTML = "Drag and drop STL file here";
+    document.getElementById("dnd-text").style.color = "#9CA3AF";
 }

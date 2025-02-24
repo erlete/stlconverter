@@ -1,5 +1,8 @@
 # [STL Converter](https://stlconverter.erlete.dev)
 
+> [!IMPORTANT]
+> This repository has been converted to a public archive since its development will not be continued. It was an experiment with educational purposes only, yet it did not serve any specific practical purpose. Thus, the final release (**v1.0.3-eol**), will mark the end of its life.
+
 This repository contains a multi-language STL data manipulation tool that can be used to convert STL binary files into ASCII ones and vice-versa.
 
 ## Python
